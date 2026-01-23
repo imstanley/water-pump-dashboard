@@ -4,8 +4,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import type { PumpAlert } from "@/types/pump";
-import { AlertCircle, CheckCircle2, Info, AlertTriangle } from "lucide-react";
+import { AlertCircle, CheckCircle2, Info, AlertTriangle, ExternalLink } from "lucide-react";
 import { format } from "date-fns";
+import Link from "next/link";
 
 interface AlertListProps {
   alerts: PumpAlert[];
@@ -83,27 +84,41 @@ export const AlertList = ({ alerts, onAcknowledge, loading }: AlertListProps) =>
                   </CardDescription>
                 </div>
               </div>
-              {!alert.acknowledged && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => onAcknowledge(alert.id)}
-                >
-                  <CheckCircle2 className="h-4 w-4 mr-2" />
-                  Acknowledge
-                </Button>
-              )}
-              {alert.acknowledged && (
-                <div className="text-sm text-muted-foreground flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-green-500" />
-                  Acknowledged
-                  {alert.acknowledged_at && (
-                    <span>
-                      {format(new Date(alert.acknowledged_at), "PPpp")}
-                    </span>
-                  )}
-                </div>
-              )}
+              <div className="flex items-center gap-2">
+                {alert.pump_id && (
+                  <Link href={`/pumps?selected=${alert.pump_id}`}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8"
+                    >
+                      <ExternalLink className="h-3.5 w-3.5 mr-1.5" />
+                      View Pump
+                    </Button>
+                  </Link>
+                )}
+                {!alert.acknowledged && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => onAcknowledge(alert.id)}
+                  >
+                    <CheckCircle2 className="h-4 w-4 mr-2" />
+                    Acknowledge
+                  </Button>
+                )}
+                {alert.acknowledged && (
+                  <div className="text-sm text-muted-foreground flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-green-500" />
+                    Acknowledged
+                    {alert.acknowledged_at && (
+                      <span>
+                        {format(new Date(alert.acknowledged_at), "PPpp")}
+                      </span>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           </CardHeader>
         </Card>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useEffect } from "react";
+import { useMemo, useEffect, useRef, useState } from "react";
 import { MapContainer, TileLayer, useMap } from "react-leaflet";
 import { LatLngBounds } from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -57,10 +57,34 @@ export const PumpMap = ({
   height = "400px",
   className = "",
 }: PumpMapProps) => {
+  const [isMounted, setIsMounted] = useState(false);
+  // Use a stable, unique key per component instance to prevent double initialization
+  const mapInstanceId = useRef(`pump-map-${Date.now()}-${Math.random()}`);
+
   // Validate and memoize valid pumps
   const validPumps = useMemo(() => {
     return pumps.filter((p) => isValidCoordinate(p.latitude, p.longitude));
   }, [pumps]);
+
+  // Ensure component is mounted before rendering map (prevents SSR issues)
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) {
+    return (
+      <div
+        className={`flex items-center justify-center glass-panel rounded-xl ${className}`}
+        style={{ height }}
+        role="status"
+        aria-label="Loading map"
+      >
+        <div className="text-muted-foreground text-center p-4">
+          <p className="text-sm">Loading map...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (validPumps.length === 0) {
     return (
@@ -87,6 +111,7 @@ export const PumpMap = ({
       aria-label="Pump locations map"
     >
       <MapContainer
+        key={mapInstanceId.current}
         center={defaultCenter}
         zoom={10}
         style={{ height: "100%", width: "100%" }}

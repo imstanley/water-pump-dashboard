@@ -11,7 +11,9 @@ import { HighlightWidget } from "@/components/dashboard/HighlightWidget";
 import { ForecastWidget } from "@/components/dashboard/ForecastWidget";
 import { TomorrowWidget } from "@/components/dashboard/TomorrowWidget";
 import { ActivityWidget } from "@/components/dashboard/ActivityWidget";
-import { Wind, Gauge, Sunrise, Droplets, Eye, Thermometer } from "lucide-react";
+import { Wind, Gauge, Sunrise, Droplets, Eye, Thermometer, ExternalLink } from "lucide-react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 import type { Pump, PumpReading } from "@/types/pump";
 
 export default function DashboardPage() {
@@ -141,17 +143,25 @@ export default function DashboardPage() {
       )}
 
       {/* Header with Pump Selector */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
           <h1 className="text-3xl font-bold gradient-text-blue">Dashboard</h1>
           <p className="text-muted-foreground mt-1">Real-time pump monitoring</p>
         </div>
-        <div className="w-64">
-          <PumpSelector
-            pumps={pumps}
-            selectedPumpId={selectedPumpId}
-            onSelect={handlePumpSelect}
-          />
+        <div className="flex items-center gap-2">
+          <Link href="/history">
+            <Button variant="outline" size="sm">
+              <ExternalLink className="h-4 w-4 mr-2" />
+              History
+            </Button>
+          </Link>
+          <div className="w-64">
+            <PumpSelector
+              pumps={pumps}
+              selectedPumpId={selectedPumpId}
+              onSelect={handlePumpSelect}
+            />
+          </div>
         </div>
       </div>
 

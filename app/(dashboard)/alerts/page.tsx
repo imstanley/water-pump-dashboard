@@ -5,6 +5,8 @@ import { usePumpAlerts } from "@/hooks/usePumpAlerts";
 import { AlertList } from "@/components/alerts/AlertList";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import Link from "next/link";
+import { ExternalLink } from "lucide-react";
 
 export default function AlertsPage() {
   const [showAcknowledged, setShowAcknowledged] = useState(false);
@@ -25,19 +27,25 @@ export default function AlertsPage() {
     <div className="space-y-8 animate-fade-in">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
-            Alerts
-          </h1>
-          <p className="text-muted-foreground mt-2">
+          <h1 className="text-3xl font-bold gradient-text-blue">Alerts</h1>
+          <p className="text-muted-foreground mt-1">
             Monitor and manage pump system alerts
           </p>
         </div>
-        <Button
-          variant={showAcknowledged ? "default" : "outline"}
-          onClick={() => setShowAcknowledged(!showAcknowledged)}
-        >
-          {showAcknowledged ? "Hide Acknowledged" : "Show All"}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Link href="/pumps">
+            <Button variant="outline" size="sm">
+              <ExternalLink className="h-4 w-4 mr-2" />
+              View Pumps
+            </Button>
+          </Link>
+          <Button
+            variant={showAcknowledged ? "default" : "outline"}
+            onClick={() => setShowAcknowledged(!showAcknowledged)}
+          >
+            {showAcknowledged ? "Hide Acknowledged" : "Show All"}
+          </Button>
+        </div>
       </div>
 
       {/* Alert Summary */}

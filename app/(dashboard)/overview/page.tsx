@@ -85,11 +85,11 @@ export default function OverviewPage() {
   ];
 
   return (
-    <div className="space-y-4 sm:space-y-6 animate-fade-in">
+    <div className="space-y-8 animate-fade-in">
       {/* Header */}
       <div>
-        <h1 className="text-2xl sm:text-3xl font-bold gradient-text-blue">Pump Overview</h1>
-        <p className="text-sm sm:text-base text-muted-foreground mt-1">Monitor all pumps at a glance</p>
+        <h1 className="text-3xl font-bold gradient-text-blue">Pump Overview</h1>
+        <p className="text-muted-foreground mt-1">Monitor all pumps at a glance</p>
       </div>
 
       {/* Search and Filters */}

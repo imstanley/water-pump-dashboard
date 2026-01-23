@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { format, subDays, startOfDay, endOfDay } from "date-fns";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 
 export default function HistoryPage() {
   const [startDate, setStartDate] = useState<Date>(
@@ -25,13 +27,19 @@ export default function HistoryPage() {
 
   return (
     <div className="space-y-8 animate-fade-in">
-      <div>
-        <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
-          History
-        </h1>
-        <p className="text-muted-foreground mt-2">
-          View historical pump data and trends
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold gradient-text-blue">History</h1>
+          <p className="text-muted-foreground mt-1">
+            View historical pump data and trends
+          </p>
+        </div>
+        <Link href="/dashboard">
+          <Button variant="outline" size="sm">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Dashboard
+          </Button>
+        </Link>
       </div>
 
       {/* Date Range Selector */}
