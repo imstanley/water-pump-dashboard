@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { getPumps, deletePump } from "@/lib/api/pumps";
+import { getPumps, deletePump, createPump, updatePump, getPump } from "@/lib/api/pumps";
 import { getLatestReading } from "@/lib/api/pumpApi";
 import { PumpCard } from "@/components/pumps/PumpCard";
+import { PumpForm } from "@/components/pumps/PumpForm";
+import { Dialog } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Plus, ExternalLink } from "lucide-react";
 import Link from "next/link";
@@ -20,6 +22,9 @@ export default function PumpsPage() {
   const [loadingReadings, setLoadingReadings] = useState<Record<string, boolean>>({});
   const [loading, setLoading] = useState(true);
   const [selectedPumpId, setSelectedPumpId] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingPump, setEditingPump] = useState<Pump | null>(null);
+  const [formLoading, setFormLoading] = useState(false);
 
   useEffect(() => {
     loadPumps();
@@ -87,6 +92,60 @@ export default function PumpsPage() {
     }
   };
 
+  const handleAddPump = () => {
+    setEditingPump(null);
+    setIsModalOpen(true);
+  };
+
+  const handleEditPump = async (pumpId: string) => {
+    const pump = await getPump(pumpId);
+    if (pump) {
+      setEditingPump(pump);
+      setIsModalOpen(true);
+    }
+  };
+
+  const handleFormSubmit = async (
+    data: Omit<Pump, "id" | "created_at" | "updated_at">
+  ) => {
+    setFormLoading(true);
+    try {
+      if (editingPump) {
+        // Update existing pump
+        const updated = await updatePump(editingPump.id, data);
+        if (updated) {
+          setPumps(pumps.map((p) => (p.id === updated.id ? updated : p)));
+          setIsModalOpen(false);
+          setEditingPump(null);
+          // Reload readings for updated pump
+          const reading = await getLatestReading(updated.id);
+          setPumpReadings({ ...pumpReadings, [updated.id]: reading });
+        }
+      } else {
+        // Create new pump
+        const newPump = await createPump(data);
+        if (newPump) {
+          setPumps([newPump, ...pumps]);
+          setIsModalOpen(false);
+          setEditingPump(null);
+          // Load reading for new pump
+          const reading = await getLatestReading(newPump.id);
+          setPumpReadings({ ...pumpReadings, [newPump.id]: reading });
+        }
+      }
+    } catch (error) {
+      console.error("Error saving pump:", error);
+      alert("Failed to save pump. Please try again.");
+    } finally {
+      setFormLoading(false);
+    }
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+    setEditingPump(null);
+  };
+
   if (loading) {
     return (
       <div className="space-y-8 animate-fade-in">
@@ -127,7 +186,7 @@ export default function PumpsPage() {
               Overview
             </Button>
           </Link>
-          <Button>
+          <Button onClick={handleAddPump}>
             <Plus className="mr-2 h-4 w-4" />
             Add Pump
           </Button>
@@ -139,7 +198,7 @@ export default function PumpsPage() {
         {pumps.length === 0 ? (
           <div className="rounded-xl glass-panel p-12 text-center">
             <p className="text-muted-foreground mb-4">No pumps configured</p>
-            <Button>
+            <Button onClick={handleAddPump}>
               <Plus className="mr-2 h-4 w-4" />
               Add Your First Pump
             </Button>
@@ -153,6 +212,7 @@ export default function PumpsPage() {
                 latestReading={pumpReadings[pump.id]}
                 loading={loadingReadings[pump.id]}
                 onSelect={() => setSelectedPumpId(pump.id)}
+                onEdit={() => handleEditPump(pump.id)}
                 onDelete={() => handleDelete(pump.id)}
                 selected={pump.id === selectedPumpId}
               />
@@ -160,6 +220,25 @@ export default function PumpsPage() {
           </div>
         )}
       </div>
+
+      {/* Add/Edit Pump Modal */}
+      <Dialog
+        open={isModalOpen}
+        onOpenChange={setIsModalOpen}
+        title={editingPump ? "Edit Pump" : "Add New Pump"}
+        description={
+          editingPump
+            ? "Update pump information and configuration"
+            : "Create a new pump to monitor and control"
+        }
+      >
+        <PumpForm
+          pump={editingPump}
+          onSubmit={handleFormSubmit}
+          onCancel={handleModalClose}
+          loading={formLoading}
+        />
+      </Dialog>
     </div>
   );
 }

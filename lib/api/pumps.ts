@@ -8,6 +8,11 @@ const supabase = createClient();
 // Cache for demo pumps to ensure consistency
 let cachedDemoPumps: Pump[] | null = null;
 
+// Clear cache when pumps are modified (for demo mode)
+const clearDemoCache = () => {
+  cachedDemoPumps = null;
+};
+
 /**
  * Get all pumps
  */
@@ -69,6 +74,7 @@ export const createPump = async (pump: Omit<Pump, "id" | "created_at" | "updated
   
   if (isDemo) {
     // In demo mode, just return the pump with generated ID
+    clearDemoCache();
     return {
       ...pump,
       id: `demo-pump-${Date.now()}`,
@@ -114,6 +120,7 @@ export const updatePump = async (
     const pump = pumps.find((p) => p.id === id);
     if (!pump) return null;
     
+    clearDemoCache();
     return {
       ...pump,
       ...updates,
@@ -144,6 +151,7 @@ export const deletePump = async (id: string): Promise<boolean> => {
   
   if (isDemo) {
     // In demo mode, deletion is simulated
+    clearDemoCache();
     return true;
   }
 
