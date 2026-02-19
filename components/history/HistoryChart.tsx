@@ -79,7 +79,7 @@ export const HistoryChart = ({ readings, metric = "all" }: HistoryChartProps) =>
                 yAxisId="left"
                 type="monotone"
                 dataKey="flow_rate"
-                stroke="hsl(var(--secondary))"
+                stroke="#22c55e"
                 strokeWidth={2}
                 name="Flow Rate (GPM)"
                 dot={false}

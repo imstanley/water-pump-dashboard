@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { getReadingsInRange } from "@/lib/api/pumpApi";
 import type { PumpReading } from "@/types/pump";
 
-export const usePumpHistory = (startDate: Date, endDate: Date) => {
+export const usePumpHistory = (startDate: Date, endDate: Date, pumpId?: string) => {
   const [readings, setReadings] = useState<PumpReading[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -12,7 +12,7 @@ export const usePumpHistory = (startDate: Date, endDate: Date) => {
     const fetchHistory = async () => {
       setLoading(true);
       try {
-        const data = await getReadingsInRange(startDate, endDate);
+        const data = await getReadingsInRange(startDate, endDate, pumpId);
         setReadings(data);
       } catch (error) {
         console.error("Error fetching history:", error);
@@ -22,7 +22,7 @@ export const usePumpHistory = (startDate: Date, endDate: Date) => {
     };
 
     fetchHistory();
-  }, [startDate, endDate]);
+  }, [startDate, endDate, pumpId]);
 
   return { readings, loading };
 };

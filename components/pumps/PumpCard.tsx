@@ -1,7 +1,7 @@
 "use client";
 
-import { MapPin, Edit, Trash2, AlertCircle } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { useState, useRef, useEffect } from "react";
+import { MapPin, Edit, Trash2, XCircle, CheckCircle2, PauseCircle, HelpCircle, MoreVertical } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Pump, PumpReading } from "@/types/pump";
 
@@ -15,58 +15,64 @@ interface PumpCardProps {
   loading?: boolean;
 }
 
-export const PumpCard = ({ 
-  pump, 
-  latestReading, 
-  onSelect, 
-  onEdit, 
-  onDelete, 
+const statusConfig = {
+  running: {
+    label: "Running",
+    icon: CheckCircle2,
+    color: "text-blue-500",
+    bg: "bg-blue-50 dark:bg-blue-950/30",
+  },
+  stopped: {
+    label: "Stopped",
+    icon: PauseCircle,
+    color: "text-orange-500",
+    bg: "bg-orange-50 dark:bg-orange-950/30",
+  },
+  error: {
+    label: "Error",
+    icon: XCircle,
+    color: "text-red-500",
+    bg: "bg-red-50 dark:bg-red-950/30",
+  },
+  unknown: {
+    label: "Unknown",
+    icon: HelpCircle,
+    color: "text-gray-400",
+    bg: "bg-gray-50 dark:bg-gray-800/30",
+  },
+} as const;
+
+export const PumpCard = ({
+  pump,
+  latestReading,
+  onSelect,
+  onEdit,
+  onDelete,
   selected,
-  loading = false 
+  loading = false,
 }: PumpCardProps) => {
-  const getStatusStyles = () => {
-    switch (pump.status) {
-      case "running":
-        return {
-          dot: "bg-green-500",
-          border: "border-2 border-green-200 dark:border-green-800",
-          bg: "bg-green-100 dark:bg-green-950/30",
-          gradient: "from-green-50 to-emerald-50 dark:from-green-950/40 dark:to-emerald-950/40",
-        };
-      case "stopped":
-        return {
-          dot: "bg-blue-500",
-          border: "border-2 border-blue-200 dark:border-blue-800",
-          bg: "bg-blue-100 dark:bg-blue-950/30",
-          gradient: "from-blue-50 to-cyan-50 dark:from-blue-950/40 dark:to-cyan-950/40",
-        };
-      case "error":
-        return {
-          dot: "bg-red-500",
-          border: "border-2 border-red-500 dark:border-red-500",
-          bg: "bg-red-100 dark:bg-red-950/30 shadow-red-500/20",
-          gradient: "from-red-50 to-rose-50 dark:from-red-950/40 dark:to-rose-950/40",
-        };
-      default:
-        return {
-          dot: "bg-gray-500",
-          border: "border-2 border-gray-200 dark:border-gray-700",
-          bg: "bg-gray-100 dark:bg-gray-950/30",
-          gradient: "from-gray-50 to-slate-50 dark:from-gray-950/40 dark:to-slate-950/40",
-        };
-    }
-  };
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
-  const styles = getStatusStyles();
-  const isAlert = pump.status === "error";
+  const status = statusConfig[pump.status as keyof typeof statusConfig] ?? statusConfig.unknown;
+  const StatusIcon = status.icon;
 
-  // Format last seen time
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handleClick = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [menuOpen]);
+
   const formatLastSeen = (timestamp: string) => {
     const date = new Date(timestamp);
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
     const diffMins = Math.floor(diffMs / 60000);
-
     if (diffMins < 1) return "Just now";
     if (diffMins < 60) return `${diffMins}m ago`;
     const diffHours = Math.floor(diffMins / 60);
@@ -82,11 +88,9 @@ export const PumpCard = ({
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-xl transition-all duration-400 ease-out cursor-pointer min-h-[180px]",
+        "relative rounded-xl glass-panel transition-all duration-300 ease-out cursor-pointer min-h-[180px] max-w-sm",
         "hover:shadow-elevated active:scale-[0.98]",
-        styles.border,
-        `bg-gradient-to-br ${styles.gradient}`,
-        selected && "ring-2 ring-primary/50 shadow-elevated scale-[1.02]"
+        selected && "ring-2 ring-primary/50 shadow-elevated"
       )}
       onClick={onSelect}
       role="button"
@@ -99,59 +103,71 @@ export const PumpCard = ({
       }}
       aria-label={`Pump ${pump.name}, status: ${pump.status}`}
     >
-      {/* Decorative gradient overlay */}
-      <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 dark:bg-white/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
-      <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 dark:bg-white/3 rounded-full blur-xl translate-y-1/2 -translate-x-1/2" />
-      
-      <div className="relative z-10 p-5 h-full flex flex-col">
-        {/* Header with status dot, name, and action buttons */}
+      <div className="p-5 h-full flex flex-col">
+        {/* Header: name + location on left, ellipsis menu on right */}
         <div className="flex items-start justify-between mb-3">
-          <div className="flex items-center gap-2 flex-1 min-w-0">
-            <div className={cn("w-2.5 h-2.5 rounded-full flex-shrink-0", styles.dot)} aria-hidden="true" />
+          <div className="min-w-0 flex-1">
             <h3 className="font-bold text-base truncate leading-tight">{pump.name}</h3>
-            {isAlert && (
-              <div className="flex-shrink-0 flex items-center gap-1 text-red-600 dark:text-red-400">
-                <AlertCircle className="h-3.5 w-3.5" />
+            {pump.location && (
+              <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
+                <MapPin className="h-3 w-3 shrink-0" />
+                <span className="truncate">{pump.location}</span>
               </div>
             )}
           </div>
-          
-          {/* Action buttons - subtle icon-only */}
-          <div className="flex items-center gap-1 flex-shrink-0 ml-2" onClick={(e) => e.stopPropagation()}>
-            {onEdit && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onEdit();
-                }}
-                className="h-7 w-7 p-0 hover:bg-accent/50"
-                aria-label="Edit pump"
+
+          {/* Ellipsis menu */}
+          {(onEdit || onDelete) && (
+            <div ref={menuRef} className="relative shrink-0 ml-2" onClick={(e) => e.stopPropagation()}>
+              <button
+                type="button"
+                onClick={() => setMenuOpen((prev) => !prev)}
+                className="h-7 w-7 flex items-center justify-center rounded-md hover:bg-accent/60 transition-colors"
+                aria-label="Pump actions"
               >
-                <Edit className="h-3.5 w-3.5" />
-              </Button>
-            )}
-            {onDelete && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onDelete();
-                }}
-                className="h-7 w-7 p-0 hover:bg-destructive/20 hover:text-destructive"
-                aria-label="Delete pump"
-              >
-                <Trash2 className="h-3.5 w-3.5" />
-              </Button>
-            )}
+                <MoreVertical className="h-4 w-4 text-muted-foreground" />
+              </button>
+
+              {menuOpen && (
+                <div className="absolute right-0 top-8 z-50 min-w-[120px] rounded-md border bg-popover text-popover-foreground shadow-md p-1">
+                  {onEdit && (
+                    <button
+                      type="button"
+                      onClick={() => { setMenuOpen(false); onEdit(); }}
+                      className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                    >
+                      <Edit className="h-3.5 w-3.5" />
+                      Edit
+                    </button>
+                  )}
+                  {onDelete && (
+                    <button
+                      type="button"
+                      onClick={() => { setMenuOpen(false); onDelete(); }}
+                      className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm text-destructive hover:bg-destructive/10 transition-colors"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                      Delete
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Status badge */}
+        <div className={cn("inline-flex items-center gap-2 rounded-lg px-3 py-2 mb-3 self-end", status.bg)}>
+          <StatusIcon className={cn("h-5 w-5", status.color)} />
+          <div>
+            <div className="text-[10px] leading-tight text-muted-foreground">Status</div>
+            <div className={cn("text-sm font-semibold leading-tight", status.color)}>{status.label}</div>
           </div>
         </div>
 
-        {/* Metrics Section */}
+        {/* Metrics */}
         <div className="grid grid-cols-2 gap-3 mb-3 flex-1">
-          <div className="bg-white/50 dark:bg-black/20 rounded-lg p-3 backdrop-blur-sm">
+          <div className="bg-muted/50 rounded-lg p-3">
             <div className="text-xs text-muted-foreground mb-1">Flow</div>
             {loading ? (
               <div className="h-6 w-12 bg-muted rounded animate-pulse" />
@@ -168,7 +184,7 @@ export const PumpCard = ({
               </div>
             )}
           </div>
-          <div className="bg-white/50 dark:bg-black/20 rounded-lg p-3 backdrop-blur-sm">
+          <div className="bg-muted/50 rounded-lg p-3">
             <div className="text-xs text-muted-foreground mb-1">Pressure</div>
             {loading ? (
               <div className="h-6 w-12 bg-muted rounded animate-pulse" />
@@ -187,17 +203,9 @@ export const PumpCard = ({
           </div>
         </div>
 
-        {/* Footer - Location and last seen */}
-        <div className="flex items-center justify-between text-xs text-muted-foreground gap-2 pt-2 border-t border-white/20 dark:border-white/10">
-          {pump.location && (
-            <div className="flex items-center gap-1 truncate min-w-0 flex-1">
-              <MapPin className="h-3 w-3 flex-shrink-0" />
-              <span className="truncate">{pump.location}</span>
-            </div>
-          )}
-          <div className="flex-shrink-0 whitespace-nowrap">
-            {lastSeen ? formatLastSeen(lastSeen) : "Never"}
-          </div>
+        {/* Footer */}
+        <div className="flex items-center justify-end text-xs text-muted-foreground pt-2 border-t border-border">
+          <span>{lastSeen ? formatLastSeen(lastSeen) : "Never"}</span>
         </div>
       </div>
     </div>

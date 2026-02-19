@@ -111,6 +111,11 @@ export const generateSampleAlerts = (pumpId: string, count: number = 10): PumpAl
         "Flow rate dropped to 0 GPM - Pump may be blocked",
         "Power consumption spike detected - Electrical issue possible",
         "Pump status: ERROR - Manual inspection required",
+        "Seal failure detected - Shutdown initiated",
+        "Motor overheating - Automatic emergency stop triggered",
+        "Bearing vibration exceeded safe threshold",
+        "Cavitation detected - Inlet blockage likely",
+        "Communication lost with pump controller for 15+ minutes",
       ],
     },
     {
@@ -121,6 +126,11 @@ export const generateSampleAlerts = (pumpId: string, count: number = 10): PumpAl
         "Temperature approaching maximum (85°F)",
         "Unusual power consumption pattern detected",
         "Pump running longer than scheduled cycle",
+        "Filter pressure differential rising - Cleaning recommended",
+        "Voltage fluctuation detected on power supply",
+        "Runtime exceeded daily limit by 20%",
+        "Backup pump failed self-test",
+        "Water level in supply tank is low",
       ],
     },
     {
@@ -131,6 +141,9 @@ export const generateSampleAlerts = (pumpId: string, count: number = 10): PumpAl
         "Normal operating parameters within range",
         "Daily usage summary: 12,450 gallons",
         "System health check completed - All systems OK",
+        "Firmware update available for controller",
+        "Weekly performance report generated",
+        "Pump restarted after scheduled maintenance window",
       ],
     },
   ];
@@ -138,9 +151,9 @@ export const generateSampleAlerts = (pumpId: string, count: number = 10): PumpAl
   for (let i = 0; i < count; i++) {
     const severityRoll = Math.random();
     let severity: AlertSeverity = "info";
-    if (severityRoll < 0.2) {
+    if (severityRoll < 0.35) {
       severity = "critical";
-    } else if (severityRoll < 0.5) {
+    } else if (severityRoll < 0.65) {
       severity = "warning";
     }
     
@@ -148,11 +161,10 @@ export const generateSampleAlerts = (pumpId: string, count: number = 10): PumpAl
     const message = templates.messages[Math.floor(Math.random() * templates.messages.length)];
     
     const alertTime = new Date(now);
-    alertTime.setHours(alertTime.getHours() - Math.floor(Math.random() * 48));
+    alertTime.setHours(alertTime.getHours() - Math.floor(Math.random() * 168));
     alertTime.setMinutes(alertTime.getMinutes() - Math.floor(Math.random() * 60));
     
-    // Some alerts are acknowledged
-    const acknowledged = Math.random() < 0.4;
+    const acknowledged = Math.random() < 0.25;
     
     alerts.push({
       id: `demo-alert-${Date.now()}-${i}-${Math.random().toString(36).substr(2, 9)}`,

@@ -12,9 +12,10 @@ interface AlertListProps {
   alerts: PumpAlert[];
   onAcknowledge: (alertId: string) => Promise<boolean>;
   loading?: boolean;
+  pumpNames?: Record<string, string>;
 }
 
-export const AlertList = ({ alerts, onAcknowledge, loading }: AlertListProps) => {
+export const AlertList = ({ alerts, onAcknowledge, loading, pumpNames = {} }: AlertListProps) => {
   const getSeverityIcon = (severity: string) => {
     switch (severity) {
       case "critical":
@@ -28,13 +29,17 @@ export const AlertList = ({ alerts, onAcknowledge, loading }: AlertListProps) =>
     }
   };
 
-  const getSeverityBadge = (severity: string) => {
-    const variants = {
-      critical: "destructive",
-      warning: "default",
-      info: "secondary",
-    };
-    return variants[severity as keyof typeof variants] || "default";
+  const getSeverityBadgeClass = (severity: string) => {
+    switch (severity) {
+      case "critical":
+        return "bg-red-500 text-white border-transparent";
+      case "warning":
+        return "bg-yellow-500 text-white border-transparent";
+      case "info":
+        return "bg-blue-500 text-white border-transparent";
+      default:
+        return "bg-muted text-muted-foreground border-transparent";
+    }
   };
 
   if (loading) {
@@ -75,11 +80,15 @@ export const AlertList = ({ alerts, onAcknowledge, loading }: AlertListProps) =>
                 <div>
                   <CardTitle className="text-lg flex items-center gap-2">
                     {alert.message}
-                    <Badge variant={getSeverityBadge(alert.severity) as any}>
+                    <Badge className={getSeverityBadgeClass(alert.severity)}>
                       {alert.severity}
                     </Badge>
                   </CardTitle>
-                  <CardDescription className="mt-1">
+                  <CardDescription className="mt-1 flex items-center gap-2">
+                    {pumpNames[alert.pump_id] && (
+                      <span className="font-medium text-foreground/70">{pumpNames[alert.pump_id]}</span>
+                    )}
+                    {pumpNames[alert.pump_id] && <span>·</span>}
                     {format(new Date(alert.created_at), "PPpp")}
                   </CardDescription>
                 </div>

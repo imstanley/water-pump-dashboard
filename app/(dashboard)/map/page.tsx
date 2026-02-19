@@ -104,7 +104,7 @@ export default function MapPage() {
   };
 
   return (
-    <div className="fixed inset-0 top-0 lg:left-64 right-0 bottom-0 animate-fade-in z-0 -m-4 sm:-m-6 lg:-m-8">
+    <div className="fixed inset-0 animate-fade-in z-0">
       {/* Map */}
       <div className="absolute inset-0">
         <PumpMap
@@ -125,7 +125,7 @@ export default function MapPage() {
             onClick={handleClosePanel}
             aria-hidden="true"
           />
-          <div className="absolute right-0 top-0 bottom-0 w-full sm:w-96 max-w-sm bg-background/95 backdrop-blur-sm border-l border-border shadow-elevated z-[1002] overflow-y-auto">
+          <div className="absolute right-0 top-14 bottom-0 w-full sm:w-96 max-w-sm bg-background/95 backdrop-blur-sm border-l border-border shadow-elevated z-[1002] overflow-y-auto">
             <div className="p-4 sm:p-6 space-y-4">
               {/* Header */}
               <div className="flex items-center justify-between">
@@ -173,7 +173,7 @@ export default function MapPage() {
       )}
 
       {/* Info Overlay */}
-      <div className="absolute top-2 sm:top-4 left-2 sm:left-4 z-[999] bg-background/95 backdrop-blur-sm rounded-lg p-2 sm:p-3 shadow-elevated max-w-[calc(100%-1rem)] sm:max-w-none">
+      <div className="absolute top-16 sm:top-18 left-2 sm:left-4 z-[999] bg-background/95 backdrop-blur-sm rounded-lg p-2 sm:p-3 shadow-elevated max-w-[calc(100%-1rem)] sm:max-w-none">
         <div className="text-xs sm:text-sm font-medium mb-0.5 sm:mb-1">Pump Map</div>
         <div className="text-xs text-muted-foreground">
           {pumps.length} pump{pumps.length !== 1 ? "s" : ""} • Tap marker for details

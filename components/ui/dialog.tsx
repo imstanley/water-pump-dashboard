@@ -62,42 +62,45 @@ export const Dialog = ({
       {/* Backdrop */}
       <div className="fixed inset-0 bg-black/50 backdrop-blur-sm animate-fade-in" />
 
-      {/* Dialog */}
+      {/* Dialog: overflow-hidden keeps scrollbar inside rounded corners */}
       <div
         ref={dialogRef}
         className={cn(
-          "relative z-50 w-full max-w-2xl max-h-[90vh] overflow-y-auto",
+          "relative z-50 flex flex-col w-full max-w-2xl max-h-[90vh] overflow-hidden",
           "rounded-xl glass-panel shadow-elevated",
           "animate-scale-in",
           className
         )}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
-        {(title || description) && (
-          <div className="flex items-start justify-between p-6 border-b border-border">
-            <div className="flex-1">
-              {title && (
-                <h2 className="text-2xl font-bold gradient-text-blue">{title}</h2>
-              )}
-              {description && (
-                <p className="text-sm text-muted-foreground mt-1">{description}</p>
-              )}
+        {/* Scrollable area: inset 6px from top and bottom so scrollbar arrows stay inside rounded corners */}
+        <div className="mt-[6px] mb-[6px] flex-1 min-h-0 overflow-y-auto overflow-x-hidden rounded-b-xl">
+          {/* Header */}
+          {(title || description) && (
+            <div className="flex items-start justify-between px-4 py-3 border-b border-border">
+              <div className="flex-1">
+                {title && (
+                  <h2 className="text-xl font-bold gradient-text-blue">{title}</h2>
+                )}
+                {description && (
+                  <p className="text-sm text-muted-foreground mt-0.5">{description}</p>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={() => onOpenChange(false)}
+                className="h-9 w-9 shrink-0 rounded-full flex items-center justify-center bg-foreground text-background hover:opacity-80 transition-opacity"
+                aria-label="Close dialog"
+                title="Close"
+              >
+                <X className="h-6 w-6" strokeWidth={2.5} />
+              </button>
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onOpenChange(false)}
-              className="h-8 w-8 p-0"
-              aria-label="Close dialog"
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
-        )}
+          )}
 
-        {/* Content */}
-        <div className="p-6">{children}</div>
+          {/* Content */}
+          <div className="p-4">{children}</div>
+        </div>
       </div>
     </div>
   );

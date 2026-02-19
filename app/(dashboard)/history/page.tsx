@@ -1,24 +1,40 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { usePumpHistory } from "@/hooks/usePumpHistory";
 import { HistoryChart } from "@/components/history/HistoryChart";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
+import { PumpSelector } from "@/components/pumps/PumpSelector";
+import { getPumps } from "@/lib/api/pumps";
 import { format, subDays, startOfDay, endOfDay } from "date-fns";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import type { Pump } from "@/types/pump";
 
 export default function HistoryPage() {
+  const [pumps, setPumps] = useState<Pump[]>([]);
+  const [selectedPumpId, setSelectedPumpId] = useState<string | null>(null);
   const [startDate, setStartDate] = useState<Date>(
     startOfDay(subDays(new Date(), 7))
   );
   const [endDate, setEndDate] = useState<Date>(endOfDay(new Date()));
   const [metric, setMetric] = useState<"pressure" | "flow_rate" | "temperature" | "all">("all");
 
-  const { readings, loading } = usePumpHistory(startDate, endDate);
+  useEffect(() => {
+    const loadPumps = async () => {
+      const allPumps = await getPumps();
+      setPumps(allPumps);
+      if (allPumps.length > 0 && !selectedPumpId) {
+        setSelectedPumpId(allPumps[0].id);
+      }
+    };
+    loadPumps();
+  }, []);
+
+  const { readings, loading } = usePumpHistory(startDate, endDate, selectedPumpId ?? undefined);
 
   const handleQuickRange = (days: number) => {
     setStartDate(startOfDay(subDays(new Date(), days)));
@@ -27,19 +43,28 @@ export default function HistoryPage() {
 
   return (
     <div className="space-y-8 animate-fade-in">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
           <h1 className="text-3xl font-bold gradient-text-blue">History</h1>
           <p className="text-muted-foreground mt-1">
             View historical pump data and trends
           </p>
         </div>
-        <Link href="/dashboard">
-          <Button variant="outline" size="sm">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Dashboard
-          </Button>
-        </Link>
+        <div className="flex items-center gap-2">
+          <div className="w-64">
+            <PumpSelector
+              pumps={pumps}
+              selectedPumpId={selectedPumpId}
+              onSelect={setSelectedPumpId}
+            />
+          </div>
+          <Link href="/dashboard">
+            <Button variant="outline" size="sm">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Dashboard
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {/* Date Range Selector */}

@@ -76,3 +76,18 @@ export interface PumpMetrics {
   avgTemperature: number | null;
   totalReadings: number;
 }
+
+export type UserRole = "admin" | "operator" | "viewer";
+
+export interface UserSettings {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+  phone: string;
+  notifications_enabled: boolean;
+  alert_email: boolean;
+  alert_sms: boolean;
+  created_at: string;
+  updated_at: string;
+}

@@ -112,7 +112,7 @@ export default function DashboardLayout({
   };
 
       const navigation = [
-        { name: "Overview", href: "/overview", icon: Grid3x3 },
+        // { name: "Overview", href: "/overview", icon: Grid3x3 },
         { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
         { name: "Map", href: "/map", icon: Map },
         { name: "Pumps", href: "/pumps", icon: Activity },

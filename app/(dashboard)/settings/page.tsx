@@ -2,6 +2,7 @@
 
 import { ApiConfig } from "@/components/settings/ApiConfig";
 import { PumpControls } from "@/components/settings/PumpControls";
+import { UserSettingsManager } from "@/components/settings/UserSettingsManager";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -185,6 +186,9 @@ export default function SettingsPage() {
 
       {/* Pump Controls */}
       <PumpControls />
+
+      {/* User Management */}
+      <UserSettingsManager />
     </div>
   );
 }

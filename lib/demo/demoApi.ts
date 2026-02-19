@@ -25,9 +25,9 @@ const demoReadingsByPump: Record<string, PumpReading[]> = {};
 const demoAlertsByPump: Record<string, PumpAlert[]> = {};
 const demoConfigsByPump: Record<string, PumpConfig> = {};
 
-// Get demo pump IDs
+// Get demo pump IDs (matches the 25 pumps from pumpGenerator)
 const getDemoPumpIds = (): string[] => {
-  return ["demo-pump-1", "demo-pump-2", "demo-pump-3"];
+  return Array.from({ length: 25 }, (_, i) => `demo-pump-${i + 1}`);
 };
 
 // Initialize demo data for a pump
@@ -42,7 +42,7 @@ const initializeDemoDataForPump = (pumpId: string) => {
   }
   
   if (!demoAlertsByPump[pumpId]) {
-    demoAlertsByPump[pumpId] = generateSampleAlerts(pumpId, 5);
+    demoAlertsByPump[pumpId] = generateSampleAlerts(pumpId, 15);
   }
   
   if (!demoConfigsByPump[pumpId]) {
