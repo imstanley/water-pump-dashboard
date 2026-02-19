@@ -2,8 +2,6 @@
 
 import { useMemo, useEffect, useRef, useState, useCallback } from "react";
 import L from "leaflet";
-import "leaflet/dist/leaflet.css";
-import "@/app/leaflet.css";
 import type { Pump } from "@/types/pump";
 
 interface PumpMapProps {

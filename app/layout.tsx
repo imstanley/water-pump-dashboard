@@ -5,6 +5,7 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { QueryProvider } from "@/lib/cache/queryProvider";
 import { initSentry } from "@/lib/monitoring/sentry";
 import "./globals.css";
+import "./leaflet.css";
 
 const inter = Inter({ subsets: ["latin"] });
 

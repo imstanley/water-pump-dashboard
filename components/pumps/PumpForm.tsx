@@ -77,7 +77,7 @@ function LocationPicker({
     parsedLat >= -90 && parsedLat <= 90 &&
     parsedLng >= -180 && parsedLng <= 180;
 
-  const placeOrMoveMarkerRef = useRef<(map: any, position: [number, number]) => void>(() => {});
+  const placeOrMoveMarkerRef = useRef<(map: any, position: [number, number]) => void>(() => { });
 
   // Initialize map (dynamic import of Leaflet - client only)
   useEffect(() => {
@@ -87,7 +87,6 @@ function LocationPicker({
     (async () => {
       if (!_L) {
         const leaflet = await import("leaflet");
-        await import("leaflet/dist/leaflet.css");
         _L = leaflet.default || leaflet;
       }
       const L = _L!;
@@ -154,7 +153,7 @@ function LocationPicker({
       }
       markerRef.current = null;
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Sync marker position when lat/lng fields change externally
@@ -169,7 +168,7 @@ function LocationPicker({
       markerRef.current.remove();
       markerRef.current = null;
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lat, lng, ready]);
 
   return (
